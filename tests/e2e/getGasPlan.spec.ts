@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, request } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
-test('CodeGen e2e test and initial refactor', async ({ page }) => {
+test('CodeGen e2e test and verify PDF content', async ({ page }) => {
   await page.goto('/pricing.html');
   await page.getByRole('combobox', { name: 'Your address' }).fill('17 Bolinda Rd Balwyn North');
   await page.getByRole('option', { name: '17 Bolinda Road, BALWYN NORTH VIC' }).click();
@@ -9,27 +11,25 @@ test('CodeGen e2e test and initial refactor', async ({ page }) => {
   await page.getByRole('checkbox', { name: 'Electricity' }).uncheck();
   await expect(page.getByRole('cell', { name: 'Natural gas' }).first()).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Electricity' }).first()).not.toBeVisible();
-  
-  /* original codegen for the browser pdf viewer/iframe
 
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'Origin Basic' }).first().click();
-  const page1 = await page1Promise;
-  await page1.locator('iframe[name="D7E5290668C9C97097AD901F1F0DADD9"]').contentFrame().getByText('Victorian Energy Fact Sheet').click();
-  await expect(page1.locator('iframe[name="D7E5290668C9C97097AD901F1F0DADD9"]').contentFrame().getByRole('button', { name: 'Download' })).toBeVisible();
-  await expect(page1.locator('iframe[name="D7E5290668C9C97097AD901F1F0DADD9"]').contentFrame().getByRole('button', { name: 'Download' })).click();
-  */
-
-  // 1st update to get playwright to check for new tab & check that PDF returns a 200 on .pdf 
   const [planDetailsTab, pdfResponse] = await Promise.all([
     page.waitForEvent('popup'),
-    page.waitForResponse(resp =>
-      resp.url().endsWith('.pdf') && resp.status() === 200
-    ),
+    page.waitForResponse(resp => resp.url().endsWith('.pdf') && resp.status() === 200),
     page.getByRole('link', { name: 'Origin Basic' }).first().click(),
   ]);
 
   expect(planDetailsTab).toBeTruthy();
   expect(pdfResponse.ok()).toBeTruthy();
+  const pdfUrl = pdfResponse.url();
 
+  // Download PDF
+  const apiContext = await request.newContext();
+  const downloadResponse = await apiContext.get(pdfUrl);
+  const pdfBuffer = await downloadResponse.body();
+
+  // Save PDF to downloads folder
+  const pdfDir = path.join(__dirname, 'downloads');
+  const pdfPath = path.join(pdfDir, 'gas-plan-details.pdf');
+  fs.writeFileSync(pdfPath, pdfBuffer);
+  console.log('PDF saved to:', pdfPath);
 });
