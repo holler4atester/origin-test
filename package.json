@@ -3,13 +3,25 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "install:browsers": "playwright install --with-deps",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:failed": "playwright test --last-failed",
+    "report": "playwright show-report"
+  },
   "keywords": [],
-  "author": "",
+  "author": "holly marshall",
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",
   "devDependencies": {
     "@playwright/test": "^1.58.1",
-    "@types/node": "^25.1.0"
+    "@types/node": "^25.1.0",
+    "typescript": "^5.9.3"
   }
 }

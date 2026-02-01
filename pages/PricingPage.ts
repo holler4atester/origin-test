@@ -17,6 +17,8 @@ export class PricingPage extends BasePage {
 
   async goto() {
     await super.goto('/pricing.html');
+    await this.page.waitForURL('**/pricing.html');
+    await this.page.waitForURL('**/pricing.html');
   }
 
   // Actions
