@@ -1,20 +1,24 @@
 import { test, expect, request } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { PricingPage } from '../../pages/PricingPage';
 
 test('Get gas plan pdf for address', async ({ page }) => {
-  await page.goto('/pricing.html');
-  await page.getByRole('combobox', { name: /address/i }).fill('17 Bolinda Rd Balwyn North');
-  await page.getByRole('option', { name: '17 Bolinda Road, BALWYN NORTH VIC' }).click();
+  const pricingPage = new PricingPage(page);
+
+  await pricingPage.goto();
+  await pricingPage.searchAddress('17 Bolinda Rd Balwyn North');
+  await pricingPage.selectAddressOption('17 Bolinda Road, BALWYN NORTH VIC');
   
-  const results = page.locator('[data-id="searchResultsContainer"]');
-  await expect(results).toBeVisible();
-  await expect(results.getByText('Natural gas').first()).toBeVisible();
-  await expect(results.getByText('Electricity').first()).toBeVisible();
+  await pricingPage.waitForResults();
   
-  await page.getByRole('checkbox', { name: 'Electricity' }).uncheck();
-  await expect(results.getByText('Natural gas').first()).toBeVisible();
-  await expect(results.getByText('Electricity').first()).not.toBeVisible();
+  await pricingPage.verifyEnergyTypeVisible('Natural gas');
+  await pricingPage.verifyEnergyTypeVisible('Electricity');
+  
+  await pricingPage.uncheckEnergyType('Electricity');
+
+  await pricingPage.verifyEnergyTypeVisible('Natural gas');
+  await pricingPage.verifyEnergyTypeVisible('Natural gas');
 
   const [planDetailsTab, pdfResponse] = await Promise.all([
     page.waitForEvent('popup'),
