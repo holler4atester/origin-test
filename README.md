@@ -1,9 +1,9 @@
-A Playwright Typescript test framework to demonstrate e2e test for Get Gas Plan scenario on Origin Energy web
+A Playwright Typescript test framework to demonstrate e2e test framework
 
 # Project Set up
 
 ```
-git clone https://github.com/holler4atester/origin-test.git
+git clone https://github.com/holler4atester/playwright-web.git
 cd origin-test
 ```
 
