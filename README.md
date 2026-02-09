@@ -4,7 +4,7 @@ A Playwright Typescript test framework to demonstrate e2e test framework
 
 ```
 git clone https://github.com/holler4atester/playwright-web.git
-cd origin-test
+cd playwright-web
 ```
 
 # Local set up and test runs
